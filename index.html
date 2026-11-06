@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Sell on Hairlux | Hairlux Vendor</title>
+  <meta name="description" content="Sell your hair and beauty products through Hairlux. Apply, get verified and list your products." />
+  <meta name="robots" content="noindex" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#2E2E2E" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Hairlux Vendor" />
+  <link rel="icon" href="assets/img/pwa/favicon-32.png" type="image/png" />
+  <link rel="apple-touch-icon" href="assets/img/pwa/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="assets/css/vendor.css" rel="stylesheet" />
+</head>
+<body>
+  <header class="landing-top"><div class="inner">
+    <img src="assets/img/logo-side-white.webp" alt="Hairlux Salon &amp; Spa" />
+    <div class="row">
+      <a class="btn btn-outline btn-sm" style="color:#fff;border-color:rgba(255,255,255,.3)" href="log-in.html" id="nav-signin">Sign in</a>
+      <a class="btn btn-gold btn-sm" href="sign-up.html" id="nav-apply">Apply to sell</a>
+    </div>
+  </div></header>
+
+  <section class="landing-hero"><div class="inner">
+    <div>
+      <div class="badge gold" style="background:rgba(212,175,55,.15);color:#e8cf7a">Hairlux Vendor</div>
+      <h1 style="margin-top:16px">Your hair and beauty products, <span>sold by Hairlux.</span></h1>
+      <p>Join a curated marketplace backed by a premium salon brand. Apply once, get verified, list your products, and we sell them to Hairlux customers.</p>
+      <div class="row mt-4">
+        <a class="btn btn-gold" href="sign-up.html">Apply to sell</a>
+        <a class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,.3)" href="log-in.html">I already applied</a>
+      </div>
+      <p class="small mt-3" id="closed-note" hidden style="color:#f0c674">New applications are paused right now. Existing vendors can still sign in.</p>
+    </div>
+    <div class="landing-panel">
+      <h3 style="color:#fff">How it works</h3>
+      <ol>
+        <li><strong>Apply</strong> with your business details, ID and payout account.</li>
+        <li><strong>Get verified.</strong> Our team reviews every vendor, usually within <span id="sla">48</span> hours.</li>
+        <li><strong>List your products.</strong> Each one is checked, including its NAFDAC number.</li>
+        <li><strong>Go live</strong> and get paid to your bank account after delivery.</li>
+      </ol>
+    </div>
+  </div></section>
+
+  <section class="landing-section">
+    <div class="features">
+      <div class="feature"><div class="k">Trusted name</div><h3>Customers buy from Hairlux</h3><p class="muted mb-0">Your products appear in the Hairlux shop and are sold under the Hairlux name, with our customer care behind every order.</p></div>
+      <div class="feature"><div class="k">Quality first</div><h3>Only genuine products</h3><p class="muted mb-0">We approve every product before it goes on sale. That keeps fakes out and keeps customers buying.</p></div>
+      <div class="feature"><div class="k">Simple payouts</div><h3>Paid to your bank</h3><p class="muted mb-0">Your share of each sale goes to the bank account you verified, after the order is delivered.</p></div>
+    </div>
+  </section>
+
+  <section class="landing-section" style="padding-top:0">
+    <div class="card">
+      <h2>What you need to apply</h2>
+      <ul class="needs">
+        <li>The owner's NIN and a government ID</li>
+        <li>CAC certificate, if your business is registered</li>
+        <li>A photo of your shop or store front</li>
+        <li>A business bank account in Nigeria</li>
+        <li>Your phone and email for verification</li>
+        <li>Hair or beauty products with NAFDAC numbers</li>
+      </ul>
+      <a class="btn btn-gold mt-3" href="sign-up.html">Start your application</a>
+    </div>
+  </section>
+  <footer class="footer">Hairlux Salon &amp; Spa, Ibadan. Questions? <a id="support-link" href="mailto:Admin@hairlux.com.ng">Admin@hairlux.com.ng</a></footer>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script>
+    (function () {
+      if (VendorApi.signedIn()) {
+        document.getElementById('nav-signin').textContent = 'Dashboard';
+        document.getElementById('nav-signin').href = 'dashboard.html';
+      }
+      VendorApi.request('/public/vendor/info', { anonymous: true }).then(function (i) {
+        document.getElementById('sla').textContent = i.reviewSlaHours;
+        if (!i.acceptingApplications) document.getElementById('closed-note').hidden = false;
+      }).catch(function () {});
+    })();
+  </script>
+</body>
+</html>

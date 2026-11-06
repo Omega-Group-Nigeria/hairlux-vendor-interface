@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Apply to sell | Hairlux Vendor</title>
+  <meta name="description" content="Sell your hair and beauty products through Hairlux. Apply, get verified and list your products." />
+  <meta name="robots" content="noindex" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#2E2E2E" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Hairlux Vendor" />
+  <link rel="icon" href="assets/img/pwa/favicon-32.png" type="image/png" />
+  <link rel="apple-touch-icon" href="assets/img/pwa/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="assets/css/vendor.css" rel="stylesheet" />
+</head>
+<body>
+<div class="auth">
+  <aside class="auth-brand">
+    <div>
+      <a href="index.html"><img class="logo" src="assets/img/logo-side-white.webp" alt="Hairlux Salon &amp; Spa" /></a>
+      <h1>Sell through <span>Hairlux</span></h1>
+      <p>Reach Hairlux customers across Nigeria. You keep making great products; we handle the storefront, payments and customer care.</p>
+      <ul class="auth-points">
+        <li>Your products sold under the Hairlux name customers already trust</li>
+        <li>Paid to your verified bank account after delivery</li>
+        <li>Every product checked before it goes on sale</li>
+      </ul>
+    </div>
+    <div class="foot">Hairlux Vendor. Hair and beauty only.</div>
+  </aside>
+  <main class="auth-main"><div class="auth-box">
+    <h2>Apply to sell</h2>
+    <p class="sub">Create your vendor account. You will add your business documents next.</p>
+    <div class="alert warn hidden" id="closed"><strong>Applications are paused</strong>Hairlux is not accepting new vendors right now. Please check back later.</div>
+    <form id="form" novalidate>
+      <div class="field"><label for="businessName">Business name</label><input class="input" id="businessName" autocomplete="organization" required maxlength="150" placeholder="As on your CAC certificate, if registered" /></div>
+      <div class="grid-2">
+        <div class="field"><label for="firstName">Your first name</label><input class="input" id="firstName" autocomplete="given-name" required /></div>
+        <div class="field"><label for="lastName">Your last name</label><input class="input" id="lastName" autocomplete="family-name" required /></div>
+      </div>
+      <div class="field"><label for="email">Email</label><input class="input" id="email" type="email" autocomplete="email" required /></div>
+      <div class="field"><label for="phone">Phone number</label><input class="input" id="phone" type="tel" autocomplete="tel" required placeholder="080..." /><div class="hint">Use the owner's name and phone: we check them against the owner's NIN.</div></div>
+      <div class="field"><label for="password">Password</label><input class="input" id="password" type="password" autocomplete="new-password" required minlength="8" /><div class="hint">At least 8 characters with an uppercase letter, a lowercase letter and a number.</div></div>
+      <div class="error-text hidden" id="error"></div>
+      <button class="btn btn-gold btn-block mt-2" id="submit" data-busy="Creating your account">Create vendor account</button>
+    </form>
+    <p class="auth-alt">Already applied? <a href="log-in.html">Sign in</a></p>
+  </div></main>
+</div>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/auth-pages.js"></script>
+  <script>AuthPages.signUp();</script>
+</body>
+</html>

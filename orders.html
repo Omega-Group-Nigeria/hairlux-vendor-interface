@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Sales | Hairlux Vendor</title>
+  <meta name="description" content="Sell your hair and beauty products through Hairlux. Apply, get verified and list your products." />
+  <meta name="robots" content="noindex" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#2E2E2E" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Hairlux Vendor" />
+  <link rel="icon" href="assets/img/pwa/favicon-32.png" type="image/png" />
+  <link rel="apple-touch-icon" href="assets/img/pwa/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="assets/css/vendor.css" rel="stylesheet" />
+</head>
+<body>
+  <main class="page" id="main">
+    <div class="page-head">
+      <div><div class="eyebrow">What customers bought</div><h1>Sales</h1></div>
+    </div>
+    <div id="notice"></div>
+    <div id="list-view">
+      <div class="filters" id="filters">
+        <button class="chip active" data-status="">All</button>
+        <button class="chip" data-status="NEW">New <span class="count" data-count="NEW"></span></button>
+        <button class="chip" data-status="PREPARING">Being picked <span class="count" data-count="PREPARING"></span></button>
+        <button class="chip" data-status="QUALITY_CHECK">Quality check <span class="count" data-count="QUALITY_CHECK"></span></button>
+        <button class="chip" data-status="READY_FOR_DISPATCH">Ready for dispatch <span class="count" data-count="READY_FOR_DISPATCH"></span></button>
+        <button class="chip" data-status="OUT_FOR_DELIVERY">Out for delivery <span class="count" data-count="OUT_FOR_DELIVERY"></span></button>
+        <button class="chip" data-status="DELIVERED">Delivered</button>
+        <button class="chip" data-status="CANCELLED">Cancelled</button>
+      </div>
+      <div id="list"><div class="loading"><span class="spinner"></span></div></div>
+      <div class="row end mt-3"><button class="btn btn-outline btn-sm hidden" id="btn-more">Show more</button></div>
+    </div>
+    <div id="detail-view" class="hidden"></div>
+  </main>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/orders.js"></script>
+</body>
+</html>
