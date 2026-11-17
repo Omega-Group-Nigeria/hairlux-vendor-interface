@@ -22,6 +22,18 @@ var AuthPages = (function () {
     location.href = UI.safeNext('dashboard.html');
   }
 
+  /** The API's 409 says which detail clashes (phone or email): tell the vendor that one. */
+  function signUpConflictMessage(apiMessage) {
+    var m = String(apiMessage || '').toLowerCase();
+    if (m.indexOf('phone') !== -1) {
+      return 'This phone number is already used by another Hairlux account. Use a different phone number.';
+    }
+    if (m.indexOf('email') !== -1) {
+      return 'A vendor account already uses this email. Sign in instead, or reset your password.';
+    }
+    return apiMessage || 'These details are already used by another account.';
+  }
+
   function signUp() {
     if (VendorApi.signedIn()) { location.replace('dashboard.html'); return; }
     VendorApi.request('/public/vendor/info', { anonymous: true }).then(function (i) {
@@ -44,7 +56,7 @@ var AuthPages = (function () {
           VendorApi.saveSession(data);
           location.href = 'verify-email.html?email=' + encodeURIComponent(body.email);
         } catch (err) {
-          showError(err.status === 409 ? 'A vendor account already uses this email or phone. Sign in instead, or use different details.' : err.message);
+          showError(err.status === 409 ? signUpConflictMessage(err.message) : err.message);
         }
       });
     });
