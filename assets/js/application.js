@@ -1,8 +1,9 @@
 /**
  * Hairlux Vendor: the application (verification, business details, owner
  * NIN, KYC documents, payout account, agreement, submit). The same page shows
- * a locked, read-only view while Hairlux reviews it, and after approval only
- * contact details and the payout account can change.
+ * a locked, read-only view while Hairlux reviews it. After approval, changes
+ * to business details, the NIN and the payout account are sent to Hairlux and
+ * only take effect once approved; categories and the description save straight away.
  */
 (function () {
   'use strict';
@@ -35,6 +36,23 @@
   function approved() { return d.seller.status === 'APPROVED'; }
   function opt(v, label, sel) { return '<option value="' + esc(v) + '"' + (sel ? ' selected' : '') + '>' + esc(label) + '</option>'; }
   function dis(on) { return on ? '' : ' disabled'; }
+  function pending(type) { return (d.pendingChanges || []).filter(function (c) { return c.type === type; }); }
+
+  /** Changes waiting for Hairlux, with a button to withdraw them. */
+  function pendingBox(type) {
+    var rows = pending(type);
+    if (!rows.length) return '';
+    return rows.map(function (c) {
+      var what = c.type === 'DETAILS'
+        ? '<ul class="mb-0">' + c.fields.map(function (f) {
+            return '<li><span style="font-weight:600">' + esc(f.label) + ':</span> ' + (f.to === null || f.to === '' ? '<em>removed</em>' : esc(f.to)) + ' <span class="small muted">(now: ' + esc(f.from === null || f.from === '' ? '-' : f.from) + ')</span></li>';
+          }).join('') + '</ul>'
+        : (c.bankAccount ? 'Pay out to <span style="font-weight:600">' + esc(c.bankAccount.bankName) + ' ' + esc(c.bankAccount.accountNumber) + '</span> (' + esc(c.bankAccount.accountName) + ')' : 'New payout account');
+      return '<div class="alert info"><strong>Waiting for Hairlux to approve</strong>' + what +
+        '<div class="small muted mt-2">Sent ' + UI.dateTime(c.createdAt) + '. Your current ' + (c.type === 'DETAILS' ? 'details stay' : 'payout account stays') + ' in use until then. ' +
+        '<button class="btn-link small" data-change-cancel="' + esc(c.id) + '">Withdraw this change</button></div></div>';
+    }).join('');
+  }
 
   // ── Sections ──────────────────────────────────────────────────────────
 
@@ -55,11 +73,13 @@
 
   function businessSection() {
     var s = d.seller;
-    var legal = editable();       // legal details: only while the application is open
+    var legal = editable() || approved();   // after approval, changes wait for Hairlux
     var contact = editable() || approved();
     var cats = CATEGORIES.concat(s.categories.filter(function (c) { return CATEGORIES.indexOf(c) < 0; }));
     return '<section class="card section" id="business"><div class="card-head"><h2>2. Business details</h2>' +
-      (approved() ? '<span class="locked-note">Business name, type and CAC number are locked after approval.</span>' : '') + '</div>' +
+      '</div>' +
+      (approved() ? '<p class="small muted">Changes to your business name, type, CAC number, contact details or address are checked by Hairlux before they take effect. Categories and the description update straight away.</p>' : '') +
+      pendingBox('DETAILS') +
       '<form id="f-business" novalidate>' +
       '<div class="grid-2"><div class="field"><label for="b-legal">Business name</label><input class="input" id="b-legal" maxlength="150" value="' + esc(s.legalName) + '"' + dis(legal) + '></div>' +
       '<div class="field"><label for="b-trading">Trading name (optional)</label><input class="input" id="b-trading" maxlength="150" value="' + esc(s.tradingName || '') + '"' + dis(legal) + '></div></div>' +
@@ -82,7 +102,7 @@
 
   function ownerSection() {
     var s = d.seller;
-    var can = editable();
+    var can = editable() || approved();
     var field = s.hasOwnerNin && !can
       ? '<div class="mono">' + esc(s.ownerNinMasked) + '</div>'
       : '<div class="grid-2"><div class="field"><label for="o-nin">NIN (11 digits)</label><input class="input mono" id="o-nin" inputmode="numeric" maxlength="11" placeholder="' + (s.hasOwnerNin ? esc(s.ownerNinMasked) + ' (saved)' : '') + '"></div>' +
@@ -115,16 +135,22 @@
 
   function bankSection() {
     var can = !['PENDING_REVIEW', 'REJECTED', 'SUSPENDED'].includes(d.seller.status);
+    var waitingFor = pending('PAYOUT_ACCOUNT').map(function (c) { return c.bankAccount && c.bankAccount.id; });
     var list = d.bankAccounts.map(function (b) {
+      var waiting = b.pendingApproval || waitingFor.indexOf(b.id) >= 0;
       return '<div class="bank-row"><div class="acct"><div class="fw" style="font-weight:600">' + esc(b.accountName) + '</div><div class="small muted">' + esc(b.bankName) + ' <span class="mono">' + esc(b.accountNumber) + '</span></div></div>' +
-        (b.isDefault ? '<span class="badge gold">Payouts go here</span>' : (can ? '<button class="btn btn-outline btn-sm" data-bank-default="' + b.id + '">Use for payouts</button>' : '')) +
+        (b.isDefault ? '<span class="badge gold">Payouts go here</span>'
+          : waiting ? '<span class="badge warn">Waiting for Hairlux</span>'
+          : (can ? '<button class="btn btn-outline btn-sm" data-bank-default="' + b.id + '">Use for payouts</button>' : '')) +
         (can ? '<button class="btn btn-danger-outline btn-sm" data-bank-del="' + b.id + '">Remove</button>' : '') + '</div>';
     }).join('');
     var form = can ? '<form id="f-bank" class="mt-3" novalidate><div class="grid-2"><div class="field"><label for="k-bank">Bank</label><select class="input" id="k-bank"><option value="">Loading banks...</option></select></div>' +
       '<div class="field"><label for="k-number">Account number</label><input class="input mono" id="k-number" inputmode="numeric" maxlength="10" placeholder="10 digits"></div></div>' +
       '<div id="k-resolved"></div><div class="row end"><button class="btn btn-dark" id="btn-add-bank" data-busy="Adding" disabled>Add account</button></div></form>' : '';
     return '<section class="card section" id="bank"><div class="card-head"><h2>5. Payout account</h2></div>' +
-      '<p class="muted">Your share of each sale is paid here. We check the account name with your bank, and it should match your business or owner name.</p>' +
+      '<p class="muted">Your share of each sale is paid here. We check the account name with your bank, and it should match your business or owner name.' +
+      (approved() ? ' A new account, or switching payouts to another account, is checked by Hairlux first.' : '') + '</p>' +
+      pendingBox('PAYOUT_ACCOUNT') +
       (list || '<p class="small muted">No account yet.</p>') + form + '</section>';
   }
 
@@ -157,7 +183,7 @@
     var s = d.seller;
     if (s.status === 'PENDING_REVIEW') return '<div class="alert info"><strong>Your application is with Hairlux</strong>It is locked while we review it. You can still verify your phone.</div>';
     if (s.status === 'CHANGES_REQUESTED') return '<div class="alert warn"><strong>Changes needed</strong>' + esc(s.statusReason || '') + '</div>';
-    if (s.status === 'APPROVED') return '<div class="alert ok"><strong>Approved</strong>You can update your contact details, address and payout account here.</div>';
+    if (s.status === 'APPROVED') return '<div class="alert ok"><strong>Approved</strong>You can update your business details and payout account here. Hairlux checks changes to sensitive details before they take effect.</div>';
     if (s.status === 'REJECTED' || s.status === 'SUSPENDED') return '<div class="alert bad"><strong>' + (s.status === 'REJECTED' ? 'Not approved' : 'Suspended') + '</strong>' + esc(s.statusReason || '') + '</div>';
     return '';
   }
@@ -207,13 +233,17 @@
           categories: UI.$all('input[name="b-cat"]:checked').map(function (x) { return x.value; }),
           description: $('#b-desc').value.trim(),
         };
-        if (editable()) {
+        if (editable() || approved()) {
           body.legalName = $('#b-legal').value.trim();
           body.tradingName = $('#b-trading').value.trim();
           if (type.value) body.businessType = type.value;
           if (needsCac(type.value)) body.cacNumber = $('#b-cac').value.trim();
         }
-        try { d = await VendorApi.request('/vendor/me', { method: 'PATCH', json: body }); render(); UI.toast('Business details saved.', 'ok'); }
+        try {
+          d = await VendorApi.request('/vendor/me', { method: 'PATCH', json: body });
+          render();
+          UI.toast(approved() && pending('DETAILS').length ? 'Saved. Changes to sensitive details are sent to Hairlux for approval.' : 'Business details saved.', 'ok');
+        }
         catch (err) { UI.toast(err.message, 'bad'); }
       });
     });
@@ -223,7 +253,11 @@
       var v = $('#o-nin').value.replace(/\D/g, '');
       if (v.length !== 11) { UI.toast('Enter the 11-digit NIN.', 'bad'); return; }
       UI.busy(nin, async function () {
-        try { d = await VendorApi.request('/vendor/me', { method: 'PATCH', json: { ownerNin: v } }); render(); UI.toast('NIN saved.', 'ok'); }
+        try {
+          d = await VendorApi.request('/vendor/me', { method: 'PATCH', json: { ownerNin: v } });
+          render();
+          UI.toast(approved() ? 'New NIN sent to Hairlux for approval.' : 'NIN saved.', 'ok');
+        }
         catch (err) { UI.toast(err.message, 'bad'); }
       });
     });
@@ -300,7 +334,9 @@
         UI.busy(addBtn, async function () {
           try {
             var r = await VendorApi.request('/vendor/bank-accounts', { method: 'POST', json: { bankCode: bankSel.value, accountNumber: num.value } });
-            await reload(r.nameMatchesBusiness ? 'Payout account added.' : 'Account added. The name does not match your business or owner name, so Hairlux will check it.');
+            await reload(r.pendingApproval
+              ? 'Account added and sent to Hairlux for approval. Payouts keep going to your current account until then.'
+              : r.nameMatchesBusiness ? 'Payout account added.' : 'Account added. The name does not match your business or owner name, so Hairlux will check it.');
           } catch (err) { UI.toast(err.message, 'bad'); }
         });
       });
@@ -332,7 +368,7 @@
 
   // Delegated: document view and remove, bank default and remove.
   document.addEventListener('click', async function (e) {
-    var t = e.target.closest('[data-doc-open],[data-doc-del],[data-bank-default],[data-bank-del]');
+    var t = e.target.closest('[data-doc-open],[data-doc-del],[data-bank-default],[data-bank-del],[data-change-cancel]');
     if (!t) return;
     e.preventDefault();
     try {
@@ -344,8 +380,12 @@
         await VendorApi.request('/vendor/documents/' + t.dataset.docDel, { method: 'DELETE' });
         await reload('Removed.');
       } else if (t.dataset.bankDefault) {
-        await VendorApi.request('/vendor/bank-accounts/' + t.dataset.bankDefault + '/default', { method: 'PATCH' });
-        await reload('Payout account updated.');
+        var r2 = await VendorApi.request('/vendor/bank-accounts/' + t.dataset.bankDefault + '/default', { method: 'PATCH' });
+        await reload(r2 && r2.pendingApproval ? 'Sent to Hairlux for approval. Payouts keep going to your current account until then.' : 'Payout account updated.');
+      } else if (t.dataset.changeCancel) {
+        d = await VendorApi.request('/vendor/change-requests/' + t.dataset.changeCancel + '/cancel', { method: 'POST' });
+        render();
+        UI.toast('Change withdrawn.', 'ok');
       } else if (t.dataset.bankDel) {
         await VendorApi.request('/vendor/bank-accounts/' + t.dataset.bankDel, { method: 'DELETE' });
         await reload('Account removed.');

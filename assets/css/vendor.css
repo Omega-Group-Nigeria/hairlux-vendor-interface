@@ -69,6 +69,10 @@ img { max-width: 100%; display: block; }
 textarea.input { min-height: 110px; resize: vertical; }
 .input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212, 175, 55, .2); }
 .input:disabled { background: #f3efe6; color: var(--muted); }
+.password-wrap { position: relative; }
+.password-wrap .input { padding-right: 48px; }
+.password-toggle { position: absolute; top: 0; right: 0; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; background: none; border: 0; color: var(--muted); cursor: pointer; border-radius: 0 10px 10px 0; }
+.password-toggle:hover, .password-toggle:focus-visible { color: var(--gold-deep); outline: none; }
 .input-group { display: flex; }
 .input-group .input { border-radius: 10px 0 0 10px; }
 .input-group .addon { display: flex; align-items: center; padding: 0 14px; border: 1px solid var(--line); border-left: 0; border-radius: 0 10px 10px 0; background: #faf7f0; color: var(--muted); font-size: 14px; }

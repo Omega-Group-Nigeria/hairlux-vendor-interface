@@ -20,6 +20,7 @@
       '<div class="error-text hidden" id="pw-err"></div><div class="row end"><button class="btn btn-dark" id="btn-pw" data-busy="Saving">Change password</button></div></form></div>' +
       '<div class="card"><h2>Help</h2><p class="muted mb-0">Email <a href="mailto:' + esc(window.VENDOR_CONFIG.SUPPORT_EMAIL) + '">' + esc(window.VENDOR_CONFIG.SUPPORT_EMAIL) + '</a> or call ' + esc(window.VENDOR_CONFIG.SUPPORT_PHONE) + '.</p></div>' +
       '<div class="row end"><button class="btn btn-outline" id="btn-out">Sign out</button></div>';
+    UI.passwordToggles();
     $('#btn-out').addEventListener('click', VendorApi.signOut);
     $('#btn-pw').addEventListener('click', function (e) {
       e.preventDefault();
